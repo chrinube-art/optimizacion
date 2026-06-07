@@ -369,8 +369,112 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // -------------------------------------------------------------
-    // 6. LÓGICA DE PESTAÑA 2: REDACCIÓN & DRAFT TEMPLATES
+    // 6. LÓGICA DE PESTAÑA 2: REDACCIÓN, CARGA DE PERFILES Y DRAFTS
     // -------------------------------------------------------------
+
+    // Carga de Perfiles mediante PDF / TXT
+    const perfilDropzone = document.getElementById('perfil-dropzone');
+    const perfilFileInput = document.getElementById('perfil-file-input');
+    const perfilUploadStatus = document.getElementById('perfil-upload-status');
+    const perfilUploadedFileName = document.getElementById('perfil-uploaded-file-name');
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        perfilDropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            perfilDropzone.classList.add('dragover');
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        perfilDropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            perfilDropzone.classList.remove('dragover');
+        }, false);
+    });
+
+    perfilDropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        handlePerfilFiles(dt.files);
+    });
+
+    perfilDropzone.addEventListener('click', () => {
+        perfilFileInput.click();
+    });
+
+    perfilFileInput.addEventListener('change', (e) => {
+        handlePerfilFiles(e.target.files);
+    });
+
+    const handlePerfilFiles = async (files) => {
+        if (files.length === 0) return;
+        const file = files[0];
+        
+        perfilUploadedFileName.textContent = file.name + ` (${Math.round(file.size / 1024)} KB) - Extrayendo...`;
+        perfilUploadStatus.classList.remove('hidden');
+
+        if (file.name.toLowerCase().endsWith('.txt')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                populateFieldsFromText(e.target.result);
+                perfilUploadedFileName.textContent = file.name + ' - Carga Completada';
+            };
+            reader.readAsText(file);
+        } else if (file.name.toLowerCase().endsWith('.pdf')) {
+            try {
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                let fullText = '';
+                for (let i = 1; i <= pdf.numPages; i++) {
+                    const page = await pdf.getPage(i);
+                    const content = await page.getTextContent();
+                    const strings = content.items.map(item => item.str);
+                    fullText += strings.join(' ') + '\n';
+                }
+                populateFieldsFromText(fullText);
+                perfilUploadedFileName.textContent = file.name + ' - Extracción Inteligente Completada';
+            } catch (err) {
+                console.error(err);
+                alert('Error al leer el archivo PDF. Intenta subir un archivo TXT.');
+                perfilUploadStatus.classList.add('hidden');
+            }
+        } else {
+            alert('Formato no soportado para el perfil. Usa PDF o TXT.');
+            perfilUploadStatus.classList.add('hidden');
+        }
+    };
+
+    const populateFieldsFromText = (text) => {
+        // Algoritmo heurístico simple para distribuir el texto
+        const cleanText = text.replace(/\s+/g, ' ').trim();
+        
+        // Expresiones regulares básicas
+        const tituloMatch = text.match(/(?:t[ií]tulo|nombre del proyecto)[\s\:]+(.*?)(?=\n|Problema|Objetivo|Soluci[oó]n|Impacto|$)/i) || text.match(/^(.{10,150})(?=\n|Problema)/is);
+        const problemaMatch = text.match(/(?:problema|oportunidad|antecedentes)[\s\:]+(.*?)(?=\n|Objetivo|Soluci[oó]n|Impacto|Metodolog[ií]a|$)/is);
+        const solucionMatch = text.match(/(?:soluci[oó]n|propuesta|innovaci[oó]n)[\s\:]+(.*?)(?=\n|Objetivo|Impacto|Metodolog[ií]a|$)/is);
+        const objGenMatch = text.match(/(?:objetivo general)[\s\:]+(.*?)(?=\n|Objetivo[s]? espec[ií]fico[s]?|Soluci[oó]n|Impacto|$)/is);
+        const objSpecMatch = text.match(/(?:objetivos espec[ií]ficos)[\s\:]+(.*?)(?=\n|Impacto|Resultados|Metodolog[ií]a|$)/is);
+        const impactoMatch = text.match(/(?:impacto|resultados esperados)[\s\:]+(.*?)$/is);
+
+        if (tituloMatch && tituloMatch[1].length > 10) projectTitleInput.value = tituloMatch[1].trim().substring(0, 150);
+        else projectTitleInput.value = "Proyecto Extraído: " + cleanText.substring(0, 50) + "...";
+
+        if (problemaMatch && problemaMatch[1].length > 20) projectProblemInput.value = problemaMatch[1].trim();
+        else projectProblemInput.value = cleanText.substring(0, Math.min(cleanText.length, 600));
+
+        if (solucionMatch && solucionMatch[1].length > 20) projectSolutionInput.value = solucionMatch[1].trim();
+        else projectSolutionInput.value = "No se detectó una sección explícita de solución. Por favor redacta tu propuesta técnica.";
+
+        if (objGenMatch && objGenMatch[1].length > 10) projectObjGeneralInput.value = objGenMatch[1].trim();
+        else projectObjGeneralInput.value = "No se detectó un objetivo general explícito.";
+
+        if (objSpecMatch && objSpecMatch[1].length > 10) projectObjSpecificsInput.value = objSpecMatch[1].trim();
+        else projectObjSpecificsInput.value = "• Objetivo específico 1\n• Objetivo específico 2";
+
+        if (impactoMatch && impactoMatch[1].length > 20) projectImpactInput.value = impactoMatch[1].trim();
+        else projectImpactInput.value = "No se detectó una sección explícita de impacto esperado.";
+
+        validateInputs();
+    };
 
     // Validación de entradas para habilitar botón de análisis
     const validateInputs = () => {
