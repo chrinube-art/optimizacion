@@ -1076,20 +1076,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
-                // Si es la última sección, gatillar los recalculos
-                if (idx === sections.length - 1) {
-                    calculateGradeForTemplate(activeTemplateKey);
-                    loadOptimizerSection(selectedOptSection);
-                    
-                    // Alerta de éxito total
-                    alert('¡Optimización Total Completada! El perfil del proyecto ha sido modificado exitosamente. Tu nota ha subido a 7.0 de forma limpia según las bases.');
-                }
-            }, idx * 250);
-        });
-    });
-
-
     // -------------------------------------------------------------
     // 9. EXPORTACIÓN DE PROYECTO OPTIMIZADO (REPORTE DE POSTULACIÓN)
     // -------------------------------------------------------------
