@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>INIA PostulaMax AI | Optimización Agropecuaria</title>
+    <meta name="description" content="Evaluación de perfiles de proyectos y optimización automatizada para fondos concursables del INIA Chile.">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header Principal -->
+        <header>
+            <div class="logo-container-wrapper">
+                <!-- Logo Gobierno de Chile - Ministerio de Agricultura -->
+                <div class="gob-logo">
+                    <div class="gob-blue-box">
+                        <svg class="gob-shield" viewBox="0 0 100 100" width="30" height="30" fill="none">
+                            <path d="M50 15 L75 35 L75 60 C75 75 50 85 50 85 C50 85 25 75 25 60 L25 35 Z" fill="#ffffff" opacity="0.95"/>
+                            <circle cx="50" cy="50" r="8" fill="#0053b3"/>
+                            <polygon points="50,44 52,49 57,49 53,52 55,57 50,54 45,57 47,52 43,49 48,49" fill="#ffffff"/>
+                            <path d="M15 35 Q25 30 25 45 Q20 50 15 35 Z" fill="#ffffff"/>
+                            <path d="M85 35 Q75 30 75 45 Q80 50 85 35 Z" fill="#ffffff"/>
+                            <path d="M35 15 Q50 5 65 15" stroke="#ffffff" stroke-width="4" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <div class="gob-red-box">
+                        <span class="gob-dept">Ministerio de<br>Agricultura</span>
+                        <span class="gob-gov">Gobierno de Chile</span>
+                    </div>
+                </div>
+                
+                <!-- Separador -->
+                <div class="logo-divider"></div>
+                
+                <!-- Logo INIA Oficial -->
+                <div class="inia-logo">
+                    <div class="inia-symbol">
+                        <div class="inia-flag-bar">
+                            <div class="flag-blue"></div>
+                            <div class="flag-red"></div>
+                        </div>
+                        <div class="inia-green-box">
+                            <svg class="inia-s-curve" viewBox="0 0 100 100" width="28" height="28" fill="none">
+                                <path d="M30,85 C20,60 80,40 70,15" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M30,85 C20,60 80,40 70,15" stroke="#007752" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M70,15 C80,40 20,60 30,85" stroke="#ffffff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M70,15 C80,40 20,60 30,85" stroke="#007752" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="inia-text-box">
+                        <div class="inia-word">
+                            <span class="inia-char">I</span>
+                            <span class="inia-char">N</span>
+                            <span class="inia-char">I</span>
+                            <span class="inia-char" style="position: relative; display: inline-flex; align-items: flex-end; padding-right: 8px;">
+                                A
+                                <svg class="inia-leaf" viewBox="0 0 100 100" width="16" height="16" style="position: absolute; bottom: 2px; right: -2px; transform: rotate(-5deg);">
+                                    <path d="M10,90 Q50,45 90,10 Q55,55 10,90 Z" fill="#78be20"/>
+                                    <path d="M10,90 Q50,45 90,10" stroke="#ffffff" stroke-width="6" stroke-linecap="round"/>
+                                </svg>
+                            </span>
+                        </div>
+                        <span class="inia-tagline">Instituto de Investigaciones Agropecuarias</span>
+                    </div>
+                </div>
+            </div>
+            <div class="header-badge">
+                <div class="badge-tag">INIA PostulaMax v2.0</div>
+                <span id="date-display">Evaluador e Innovador de Ideas</span>
+            </div>
+        </header>
+
+        <!-- Banner Informativo -->
+        <div class="alert-banner">
+            <div class="alert-banner-icon">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+            </div>
+            <div class="alert-banner-content">
+                <strong>¿Cómo funciona?</strong> Selecciona las bases del concurso, redacta o carga tu perfil agropecuario, analízalo con IA para obtener tu <strong>Nota (1.0 a 7.0)</strong>, y usa el <strong>Optimizador IA</strong> para mejorar las secciones y convertir tu idea en una propuesta ganadora de fondos.
+            </div>
+        </div>
+
+        <!-- Navegación por Pestañas -->
+        <nav class="tabs-navigation">
+            <button class="tab-btn active" data-tab="bases-panel">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                1. Bases del Concurso
+            </button>
+            <button class="tab-btn" data-tab="perfil-panel" id="btn-tab-perfil">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                2. Perfil de la Idea
+            </button>
+            <button class="tab-btn" data-tab="resultados-panel" id="btn-tab-resultados">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+                </svg>
+                3. Evaluación y Nota
+            </button>
+            <button class="tab-btn" data-tab="optimizador-panel" id="btn-tab-optimizador">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                4. Optimizador de Ideas
+            </button>
+        </nav>
+
+        <!-- CONTENIDO DE PESTAÑAS -->
+        <main>
+            
+            <!-- PESTAÑA 1: BASES DEL CONCURSO -->
+            <div id="bases-panel" class="tab-content active">
+                <div class="dashboard-grid">
+                    <!-- Configuración y Selección -->
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <h2 class="card-title">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                                </svg>
+                                Selección de Concurso
+                            </h2>
+                            <span class="badge-tag">3 Plantillas Reales</span>
+                        </div>
+                        <p class="card-subtitle" style="margin-bottom: 1.5rem;">
+                            Selecciona una de las plantillas oficiales de concursos agropecuarios chilenos con sus criterios de ponderación, o sube tu propia base personalizada.
+                        </p>
+                        
+                        <div id="contests-list">
+                            <!-- Concurso 1: FIA -->
+                            <div class="contest-item active" data-contest="fia">
+                                <div class="contest-item-info">
+                                    <span class="contest-title">FIA - Innovación Familiar Campesina</span>
+                                    <span class="contest-meta">
+                                        <span>Foco: Resiliencia Climática y AFC</span>
+                                        <span>Nota Adjudicación: ≥ 5.5</span>
+                                    </span>
+                                </div>
+                                <div class="contest-radio"></div>
+                            </div>
+                            <!-- Concurso 2: FONDEF -->
+                            <div class="contest-item" data-contest="fondef">
+                                <div class="contest-item-info">
+                                    <span class="contest-title">FONDEF I+D Agropecuario y Forestal</span>
+                                    <span class="contest-meta">
+                                        <span>Foco: Transferencia y Rigor Científico</span>
+                                        <span>Nota Adjudicación: ≥ 5.8</span>
+                                    </span>
+                                </div>
+                                <div class="contest-radio"></div>
+                            </div>
+                            <!-- Concurso 3: INIA Semilla -->
+                            <div class="contest-item" data-contest="inia-semilla">
+                                <div class="contest-item-info">
+                                    <span class="contest-title">INIA Semilla de Investigación Tecnológica</span>
+                                    <span class="contest-meta">
+                                        <span>Foco: Pilotaje Técnico y Viabilidad Local</span>
+                                        <span>Nota Adjudicación: ≥ 6.0</span>
+                                    </span>
+                                </div>
+                                <div class="contest-radio"></div>
+                            </div>
+                        </div>
+
+                        <!-- Carga Manual del Texto de las Bases -->
+                        <div class="input-group" style="margin-top: 2rem;">
+                            <label for="custom-bases-text">Contenido Textual de las Bases Seleccionadas</label>
+                            <textarea id="custom-bases-text" rows="8" placeholder="Pega aquí los objetivos, requisitos y criterios de evaluación del concurso si usas bases personalizadas..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Zona de Carga de Archivos -->
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <h2 class="card-title">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                                </svg>
+                                Subir Archivo de Bases
+                            </h2>
+                        </div>
+                        <p class="card-subtitle" style="margin-bottom: 1.5rem;">
+                            Puedes arrastrar y soltar el documento de bases del concurso (PDF, Word o TXT). El sistema extraerá las directrices técnicas para ponderar el proyecto.
+                        </p>
+                        
+                        <div class="file-dropzone" id="bases-dropzone">
+                            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12l-3-3m0 0l-3 3m3-3v6m-1.5-15H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+                            </svg>
+                            <span class="dropzone-label">Arrastra tus bases aquí o presiona para buscar</span>
+                            <span class="dropzone-sublabel">Soporta PDF, DOCX o TXT (Máx. 10MB)</span>
+                            <input type="file" id="bases-file-input" class="hidden" accept=".txt,.pdf,.docx">
+                        </div>
+
+                        <div id="file-upload-status" class="hidden" style="margin-top: 1.5rem; padding: 1rem; border-radius: var(--radius-md); background: rgba(13, 71, 161, 0.1); border: 1px solid var(--accent-blue); display: flex; align-items: center; gap: 0.75rem;">
+                            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="color: var(--accent-cyan);">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <div style="font-size: 0.85rem;">
+                                <strong id="uploaded-file-name">bases_concurso.pdf</strong>
+                                <div style="color: var(--text-muted); font-size: 0.75rem;">Texto de bases extraído y cargado en el sistema correctamente.</div>
+                            </div>
+                        </div>
+
+                        <div style="text-align: right; margin-top: 2rem;">
+                            <button id="btn-next-to-profile" class="btn btn-blue">
+                                Siguiente: Redactar Proyecto
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 5l7 7-7 7M5 5l7 7-7 7" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 2: PERFIL DE LA IDEA -->
+            <div id="perfil-panel" class="tab-content">
+                <div class="dashboard-grid">
+                    <!-- Formulario del Perfil -->
+                    <div class="card">
+                        <div class="card-header-flex">
+                            <h2 class="card-title">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                                Formulación del Perfil Agropecuario
+                            </h2>
+                            <button class="btn btn-sm" id="btn-clear-inputs" style="background: rgba(255, 82, 82, 0.1); border-color: rgba(255, 82, 82, 0.3); color: var(--grade-bad);">Limpiar Campos</button>
+                        </div>
+                        
+                        <div class="input-group">
+                            <label for="project-title">Título del Proyecto</label>
+                            <input type="text" id="project-title" placeholder="Ej: Control de plagas agrícola mediante el uso de tecnología drone en campos de Ñuble">
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="project-sector">Sector Agropecuario Directo</label>
+                                <select id="project-sector">
+                                    <option value="Fruticultura">Fruticultura (Frutas de carozo, pomáceas, frutos secos, berries)</option>
+                                    <option value="Horticultura">Horticultura (Hortalizas de hoja, bulbos, frutos y raíces)</option>
+                                    <option value="Ganadería">Ganadería y Producción Animal (Bovinos, ovinos, praderas)</option>
+                                    <option value="Vitivinicultura">Vitivinicultura y Enología (Uva de mesa, vinos, cepas patrimoniales)</option>
+                                    <option value="Cultivos anuales">Cultivos Anuales (Trigo, avena, maíz, leguminosas)</option>
+                                    <option value="Apicultura">Apicultura y Polinización</option>
+                                    <option value="Sostenibilidad">Sustentabilidad y Recursos Naturales (Suelo, agua, biodiversidad)</option>
+                                </select>
+                            </div>
+                            <div class="input-group">
+                                <label for="project-region">Región Chilena de Pilotaje</label>
+                                <select id="project-region">
+                                    <option value="Región de Ñuble">Región de Ñuble</option>
+                                    <option value="Región de Coquimbo">Región de Coquimbo</option>
+                                    <option value="Región de Valparaíso">Región de Valparaíso</option>
+                                    <option value="Región del Maule">Región del Maule</option>
+                                    <option value="Región de O'Higgins">Región de O'Higgins</option>
+                                    <option value="Región de La Araucanía">Región de La Araucanía</option>
+                                    <option value="Región de Los Lagos">Región de Los Lagos</option>
+                                    <option value="Región de Atacama">Región de Atacama</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="project-problem">1. Problema o Oportunidad Sectorial (¿Qué duele en el agro?)</label>
+                            <textarea id="project-problem" rows="4" placeholder="Describe la problemática detectada. Ej: Hay muchas plagas y los agricultores gastan mucho dinero aplicando pesticidas químicos de forma descontrolada sin saber dónde está realmente el foco..."></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="project-solution">2. Propuesta de Solución Tecnológica / Innovación (¿Qué propones?)</label>
+                            <textarea id="project-solution" rows="4" placeholder="Describe la tecnología, producto o servicio innovador. Ej: Volaremos drones con cámaras normales para sacar fotos a las plantaciones y ver si hay hojas dañadas para aplicar insecticida sólo en esas partes..."></textarea>
+                        </div>
+
+                        <div class="input-row">
+                            <div class="input-group">
+                                <label for="project-obj-general">3. Objetivo General (¿Para qué?)</label>
+                                <textarea id="project-obj-general" rows="3" placeholder="Define el fin último del proyecto. Ej: Diseñar un sistema de drones para ayudar a controlar las plagas de los cultivos más rápido..."></textarea>
+                            </div>
+                            <div class="input-group">
+                                <label for="project-obj-specifics">Objetivos Específicos (Uno por línea)</label>
+                                <textarea id="project-obj-specifics" rows="3" placeholder="• Volar los drones en Ñuble
+• Sacar fotos con las cámaras
+• Evaluar si baja el gasto de químicos"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="project-impact">4. Resultados e Impacto Esperado (¿Cuál es el beneficio para el agricultor?)</label>
+                            <textarea id="project-impact" rows="3" placeholder="Describe los efectos económicos, productivos o ecológicos del proyecto. Ej: Menos plagas, ahorro de plata para los campesinos y menos contaminación con pesticidas químicos..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Asistente de Inicio Rápido y Acción -->
+                    <div>
+                        <!-- Plantillas Pre-cargadas -->
+                        <div class="card" style="margin-bottom: 1.5rem;">
+                            <div class="card-header-flex">
+                                <h2 class="card-title">
+                                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                    </svg>
+                                    Borradores de Prueba
+                                </h2>
+                            </div>
+                            <p class="card-subtitle" style="margin-bottom: 1rem;">
+                                ¿No tienes un texto listo? Carga un borrador real preestablecido para evaluar cómo nuestro motor analiza y optimiza perfiles mediocres.
+                            </p>
+                            
+                            <div class="template-picker">
+                                <!-- Borrador 1 -->
+                                <div class="template-card" data-template="drones-nuble">
+                                    <div class="template-avatar">
+                                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                                        </svg>
+                                    </div>
+                                    <div class="template-info">
+                                        <div class="template-title">Drones para Plagas en Ñuble</div>
+                                        <div class="template-desc">Borrador inicial débil. Foco en frutales. Nota estimada: ~4.2</div>
+                                    </div>
+                                </div>
+
+                                <!-- Borrador 2 -->
+                                <div class="template-card" data-template="riego-copiapo">
+                                    <div class="template-avatar">
+                                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                        </svg>
+                                    </div>
+                                    <div class="template-info">
+                                        <div class="template-title">Riego Inteligente Automatizado</div>
+                                        <div class="template-desc">Borrador inicial básico para Copiapó. Nota estimada: ~3.5</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón Analizar Principal -->
+                        <div class="card" style="text-align: center;">
+                            <p class="card-subtitle" style="margin-bottom: 1.5rem;">
+                                Una vez que todos los campos del perfil estén llenos, procesa tu propuesta con el motor cognitivo de INIA PostulaMax AI.
+                            </p>
+                            <button id="btn-trigger-analysis" class="btn btn-primary" style="width: 100%; padding: 1.2rem; font-size: 1.1rem;" disabled>
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                ANALIZAR PROPUESTA CON IA
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 3: EVALUACIÓN Y NOTA -->
+            <div id="resultados-panel" class="tab-content">
+                <div class="dashboard-grid">
+                    <!-- Nota y Rúbricas -->
+                    <div class="card" style="min-height: 520px;">
+                        <!-- Cargador Interno Simulado -->
+                        <div id="analysis-loader" class="loader-overlay hidden">
+                            <div class="loader-leaf"></div>
+                            <div class="loader-text">Analizando alineación semántica...</div>
+                        </div>
+
+                        <div class="card-header-flex">
+                            <h2 class="card-title">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                                Consola de Evaluación Técnica
+                            </h2>
+                            <div id="current-contest-badge" class="badge-tag">Concurso: FIA</div>
+                        </div>
+
+                        <div class="dashboard-grid" style="grid-template-columns: 1fr 1.2fr; gap: 1rem; margin-top: 1rem;">
+                            <!-- Panel de la Nota Circular -->
+                            <div class="evaluation-header">
+                                <div class="circular-score-wrapper">
+                                    <svg class="score-svg" width="160" height="160" viewBox="0 0 160 160">
+                                        <circle class="score-bg-circle" cx="80" cy="80" r="70"></circle>
+                                        <circle id="score-circle-progress" class="score-progress-circle" cx="80" cy="80" r="70"></circle>
+                                    </svg>
+                                    <div class="circular-score-text">
+                                        <div class="score-number" id="result-grade-number">4.2</div>
+                                        <div class="score-label">Nota Chilena</div>
+                                    </div>
+                                </div>
+                                <div id="result-status-badge" class="status-badge st-avg">Aprobable con Obs.</div>
+                            </div>
+
+                            <!-- Rúbrica desglosada -->
+                            <div>
+                                <h3 style="font-size: 0.95rem; text-transform: uppercase; color: var(--text-muted); margin-bottom: 1rem;">Desglose de Rúbrica (1.0 - 7.0)</h3>
+                                
+                                <div class="criteria-list">
+                                    <!-- Criterio 1 -->
+                                    <div class="criterion-item">
+                                        <div class="criterion-header">
+                                            <span class="criterion-name">Pertinencia Agropecuaria y Alineación</span>
+                                            <span class="criterion-grade" id="crit-1-grade">4.5</span>
+                                        </div>
+                                        <div class="criterion-bar-wrapper">
+                                            <div class="criterion-bar" id="crit-1-bar" style="width: 64%; background-color: var(--grade-avg);"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Criterio 2 -->
+                                    <div class="criterion-item">
+                                        <div class="criterion-header">
+                                            <span class="criterion-name">Consistencia Técnica Interna</span>
+                                            <span class="criterion-grade" id="crit-2-grade">3.8</span>
+                                        </div>
+                                        <div class="criterion-bar-wrapper">
+                                            <div class="criterion-bar" id="crit-2-bar" style="width: 54%; background-color: var(--grade-bad);"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Criterio 3 -->
+                                    <div class="criterion-item">
+                                        <div class="criterion-header">
+                                            <span class="criterion-name">Sustentabilidad y Resiliencia Climática</span>
+                                            <span class="criterion-grade" id="crit-3-grade">4.0</span>
+                                        </div>
+                                        <div class="criterion-bar-wrapper">
+                                            <div class="criterion-bar" id="crit-3-bar" style="width: 57%; background-color: var(--grade-avg);"></div>
+                                        </div>
+                                    </div>
+                                    <!-- Criterio 4 -->
+                                    <div class="criterion-item">
+                                        <div class="criterion-header">
+                                            <span class="criterion-name">Claridad de Objetivos y Resultados</span>
+                                            <span class="criterion-grade" id="crit-4-grade">4.3</span>
+                                        </div>
+                                        <div class="criterion-bar-wrapper">
+                                            <div class="criterion-bar" id="crit-4-bar" style="width: 61%; background-color: var(--grade-avg);"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resumen de Observaciones -->
+                    <div class="card" style="min-height: 520px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <div class="card-header-flex">
+                                <h2 class="card-title">
+                                    <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                    </svg>
+                                    Diagnóstico Ejecutivo de la IA
+                                </h2>
+                            </div>
+                            
+                            <div style="margin-bottom: 1.5rem;">
+                                <h3 style="font-size: 0.9rem; color: #ffffff; margin-bottom: 0.5rem;">Sintesis Recomendada:</h3>
+                                <p id="result-synthesis-text" style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.5;">
+                                    El borrador actual tiene problemas serios de fundamentación. No cuantifica el impacto económico de la plaga y los objetivos son ambiguos y no académicos. Para adjudicarse los fondos, es imperativo estructurar los objetivos de forma jerárquica y con bases científicas.
+                                </p>
+                            </div>
+
+                            <div style="margin-bottom: 1.5rem;">
+                                <h3 style="font-size: 0.9rem; color: #ffffff; margin-bottom: 0.75rem;">Conceptos Clave Coincidentes:</h3>
+                                <div id="result-keywords-container" style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    <span class="keyword-pill">Frutales</span>
+                                    <span class="keyword-pill">Ñuble</span>
+                                    <span class="keyword-pill">Tecnología</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background: rgba(0, 230, 118, 0.05); border: 1px solid rgba(0, 230, 118, 0.2); padding: 1.25rem; border-radius: var(--radius-md); text-align: center;">
+                            <p style="font-size: 0.85rem; color: var(--accent); font-weight: 700; margin-bottom: 0.75rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                                ¡La IA puede reescribir este proyecto por ti!
+                            </p>
+                            <button id="btn-go-to-optimizer" class="btn btn-primary" style="width: 100%;">
+                                Optimizar Secciones Ahora
+                                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PESTAÑA 4: OPTIMIZADOR DE IDEAS -->
+            <div id="optimizador-panel" class="tab-content">
+                <div class="card">
+                    <div class="card-header-flex">
+                        <div class="logo-container" style="gap: 0.6rem;">
+                            <div class="logo-icon" style="width: 32px; height: 32px; background: var(--accent); color: var(--bg-darkest); box-shadow: none;">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                                </svg>
+                            </div>
+                            <h2 class="card-title">
+                                Optimizador de Secciones Cognitivo
+                            </h2>
+                        </div>
+                        <div style="display: flex; gap: 0.75rem; align-items: center;">
+                            <span class="badge-tag" style="background: rgba(0, 230, 118, 0.1); border-color: rgba(0, 230, 118, 0.4); color: var(--accent); font-weight: 800; font-size: 0.85rem;" id="optimizer-score-indicator">Nota Actual: 4.2</span>
+                            <button id="btn-optimize-all" class="btn btn-sm btn-primary">Optimizar Todo el Proyecto</button>
+                        </div>
+                    </div>
+
+                    <p class="card-subtitle" style="margin-bottom: 1.5rem;">
+                        La IA ha analizado las bases del concurso y tu borrador. A continuación, selecciona cada sección para ver los diagnósticos específicos y el texto optimizado sugerido para obtener la nota máxima.
+                    </p>
+
+                    <!-- Navegación interna del optimizador -->
+                    <div class="opt-navigation" id="optimizer-sections-nav">
+                        <button class="opt-tab-btn active" data-sec="title">Título del Proyecto</button>
+                        <button class="opt-tab-btn" data-sec="problem">1. Problema Sectorial</button>
+                        <button class="opt-tab-btn" data-sec="solution">2. Propuesta de Solución</button>
+                        <button class="opt-tab-btn" data-sec="objectives">3. Objetivos</button>
+                        <button class="opt-tab-btn" data-sec="impact">4. Resultados e Impacto</button>
+                    </div>
+
+                    <!-- Panel de Diagnósticos IA -->
+                    <div class="diagnostics-panel">
+                        <div class="diagnostics-icon">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                            </svg>
+                        </div>
+                        <div class="diagnostics-list">
+                            <div class="diagnostics-title" id="opt-diag-title">Deficiencias Críticas del Título (FIA)</div>
+                            <div id="opt-diag-items-list">
+                                <div class="diagnostics-item">Falta alineación explícita con la resiliencia al cambio climático del agro local.</div>
+                                <div class="diagnostics-item">Falta mencionar el grupo de beneficiarios directos (AFC).</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Contenedores Lado a Lado (Comparativa) -->
+                    <div class="comparison-layout">
+                        <!-- Texto Actual -->
+                        <div class="comparison-box">
+                            <div class="box-header">
+                                Tu Texto Borrador
+                                <span style="color: var(--grade-bad); font-weight: 700;">Para corregir</span>
+                            </div>
+                            <div class="box-content" id="opt-box-current">
+                                Control de plagas agrícola mediante el uso de tecnología drone en campos de Ñuble.
+                            </div>
+                        </div>
+
+                        <!-- Texto Sugerido Ganador -->
+                        <div class="comparison-box suggested" id="opt-glow-target">
+                            <div class="box-header">
+                                Propuesta Optimizada IA (Nota Máxima)
+                                <span style="color: var(--accent); font-weight: 800; display: flex; align-items: center; gap: 0.25rem;">
+                                    <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24">
+                                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                    </svg>
+                                    Excelente (7.0)
+                                </span>
+                            </div>
+                            <div class="box-content" id="opt-box-suggested">
+                                <span class="highlight-ins">Sistema de Monitoreo Aero-Inteligente y Control Biológico Sectorizado</span> de plagas para <span class="highlight-ins">la Agricultura Familiar Campesina (AFC) y Fruticultores de la Región de Ñuble, optimizando la sustentabilidad hídrica y reduciendo fitosanitarios</span>.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botones de Acción de Optimización -->
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2rem;">
+                        <button id="btn-reset-section" class="btn" style="background: rgba(255, 255, 255, 0.05); border-color: var(--border);">
+                            Restaurar Texto Original
+                        </button>
+                        
+                        <div style="display: flex; gap: 1rem;">
+                            <button id="btn-apply-section-improvement" class="btn btn-primary" style="padding: 1rem 2.5rem; font-size: 1rem; font-weight: 800;">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                </svg>
+                                APLICAR MEJORA A ESTA SECCIÓN
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exportar Perfil Optimizado Completo -->
+                <div class="card" id="export-card" style="margin-top: 2rem; border-color: rgba(13, 71, 161, 0.4); display: none;">
+                    <div class="card-header-flex" style="border: none; margin-bottom: 0;">
+                        <div>
+                            <h3 style="color: #ffffff; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="color: var(--accent-cyan);">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                ¡Felicidades! Tu proyecto ha sido optimizado al 100%
+                            </h3>
+                            <p class="card-subtitle" style="margin-top: 0.25rem;">La propuesta cuenta con una calificación simulada de <strong>Nota 7.0 (Excelente)</strong> según las bases concursables vigentes del INIA.</p>
+                        </div>
+                        <button id="btn-export-pdf" class="btn btn-blue">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            Exportar Propuesta Optimizada
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer style="text-align: center; margin-top: 4rem; padding: 2rem 0; color: var(--text-muted); font-size: 0.8rem; border-top: 1px solid var(--border);">
+            <div style="display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                INIA PostulaMax AI - Respaldado por el Instituto de Investigaciones Agropecuarias de Chile
+            </div>
+            &copy; 2026 INIA Chile. Todos los derechos reservados. Desarrollado en cooperación tecnológica para la I+D Silvoagropecuaria.
+        </footer>
+    </div>
+
+    <!-- Script de Lógica e Interactividad -->
+    <script src="js/main.js"></script>
+</body>
+</html>
