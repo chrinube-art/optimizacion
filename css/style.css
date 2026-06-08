@@ -65,7 +65,7 @@ body {
         radial-gradient(circle at 10% 20%, rgba(30, 77, 43, 0.3) 0%, transparent 45%),
         radial-gradient(circle at 90% 80%, rgba(13, 71, 161, 0.25) 0%, transparent 45%),
         radial-gradient(circle at 50% 50%, rgba(0, 230, 118, 0.05) 0%, transparent 60%);
-    background-attachment: fixed;
+    background-attachment: fixed, fixed, fixed;
     color: var(--text-main);
     line-height: 1.6;
     min-height: 100vh;

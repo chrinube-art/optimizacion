@@ -300,8 +300,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // Inicializar primera base
-    loadContestBasesText('fia');
+    // Inicializar primera base vacía (Cero Prejuicios)
+    activeContestKey = 'personalizado';
+    customBasesText.value = '';
+    currentContestBadge.textContent = "Concurso: PERSONALIZADO (Cero Prejuicios)";
 
     contestItems.forEach(item => {
         item.addEventListener('click', () => {
@@ -550,8 +552,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // 7. MOTOR COGNITIVO DE EVALUACIÓN Y NOTAS (1.0 - 7.0)
     // -------------------------------------------------------------
 
-    // Simular el Clic del Análisis con cargador interactivo de inmersión
-    btnTriggerAnalysis.addEventListener('click', () => {
+    // Clic del Análisis conectado a la IA real
+    btnTriggerAnalysis.addEventListener('click', async () => {
         // Guardar valores iniciales
         syncInputsToLocalData();
 
@@ -561,10 +563,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Textos del Loader Secuenciales
         const loadingTexts = [
-            "Escaneando requerimientos de las bases del concurso...",
-            "Evaluando rigor técnico del perfil agropecuario...",
-            "Analizando consistencia de objetivos y metas...",
-            "Generando diagnóstico de optimización y rúbrica..."
+            "Conectando con el Motor Cognitivo de IA...",
+            "Escaneando requerimientos de las bases subidas...",
+            "Cruzando datos del perfil contra las bases...",
+            "Generando diagnóstico y rúbrica final..."
         ];
 
         let txtIdx = 0;
@@ -573,21 +575,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (txtIdx < loadingTexts.length) {
                 analysisLoader.querySelector('.loader-text').textContent = loadingTexts[txtIdx];
             }
-        }, 400);
+        }, 1500); // 1.5s interval to simulate AI thinking time
 
-        // Terminar carga y evaluar
-        setTimeout(() => {
-            clearInterval(textInterval);
-            analysisLoader.classList.add('hidden');
-            
-            // Evaluar y mostrar
-            isAnalyzed = true;
-            evaluateProjectSilently();
-            
-            // Habilitar pestañas restringidas
-            document.getElementById('btn-tab-resultados').classList.remove('disabled');
-            document.getElementById('btn-tab-optimizador').classList.remove('disabled');
-        }, 1600);
+        isAnalyzed = true;
+        
+        // Llamada real al backend
+        await evaluateProjectWithAI();
+
+        clearInterval(textInterval);
+        analysisLoader.classList.add('hidden');
+        
+        // Habilitar pestañas restringidas
+        document.getElementById('btn-tab-resultados').classList.remove('disabled');
+        document.getElementById('btn-tab-optimizador').classList.remove('disabled');
     });
 
     // Guardar valores del DOM en variables de JS
@@ -658,66 +658,151 @@ document.addEventListener('DOMContentLoaded', () => {
         ];
     };
 
-    const evaluateProjectSilently = () => {
+    const evaluateProjectWithAI = async () => {
         syncInputsToLocalData();
         
         const basesText = customBasesText.value;
-        const activeCriteria = extractCriteriaFromBases(basesText);
-        
         const fullProjectText = (
-            currentProjectData.title + " " + 
-            currentProjectData.problem + " " + 
-            currentProjectData.solution + " " + 
-            currentProjectData.objectives + " " + 
-            currentProjectData.impact
+            "TÍTULO: " + currentProjectData.title + "\n\n" +
+            "PROBLEMA: " + currentProjectData.problem + "\n\n" +
+            "SOLUCIÓN: " + currentProjectData.solution + "\n\n" +
+            "OBJETIVOS: " + currentProjectData.objectives + "\n\n" +
+            "IMPACTO: " + currentProjectData.impact
         );
         
-        const allKeywords = getKeywordsFromText(basesText);
-        const matchedKeywords = allKeywords.filter(kw => fullProjectText.toLowerCase().includes(kw));
+        if (!basesText || basesText.trim().length < 20) {
+            alert('Debes subir o pegar las bases del concurso en la Pestaña 1 antes de analizar.');
+            return;
+        }
 
-        // Evaluadores generales de rigor
-        const hasMetrics = /[0-9]|%/.test(currentProjectData.problem) && /[0-9]|%/.test(currentProjectData.impact);
+        try {
+            // Llamar a nuestra API
+            const response = await window.apiClient.evaluateProject(basesText, fullProjectText);
+            
+            if (response.error) {
+                alert("Error de la IA: " + response.error);
+                return;
+            }
+
+            // Mapear respuesta JSON al DOM
+            // expected: { scoreMatrix: [{criterionName, weightPercent, score}], finalScore, status, executiveDiagnostic }
+            
+            const activeCriteria = response.scoreMatrix.map(c => ({
+                name: c.criterionName || "Criterio General",
+                weight: c.weightPercent || (100 / response.scoreMatrix.length),
+                score: c.score || 1.0
+            }));
+
+            window.activeCriteriaList = activeCriteria;
+
+            const dynamicContestName = response.contestName || "Fondo Personalizado";
+            updateUIWithScoresAI(response.finalScore || 1.0, activeCriteria, response.executiveDiagnostic || "Sin diagnóstico", response.status || "NO ADJUDICABLE", dynamicContestName);
+            
+        } catch (err) {
+            console.error("Fallo la evaluación AI:", err);
+            alert("No se pudo conectar con el backend local. Verifica que app.py esté corriendo.");
+        }
+    };
+
+    const updateUIWithScoresAI = (grade, activeCriteria, diagnosticText, adjudicableStatus, contestName) => {
+        currentGrade = grade;
+        resultGradeNumber.textContent = grade.toFixed(1);
+        optimizerScoreIndicator.textContent = `Nota Actual: ${grade.toFixed(1)}`;
         
-        const academicVerbs = ["diseñar", "evaluar", "implementar", "caracterizar", "desarrollar", "validar", "analizar", "optimizar", "cuantificar", "determinar", "establecer", "investigar", "calibrar", "transferir"];
-        const verbMatches = academicVerbs.filter(verb => currentProjectData.objectives.toLowerCase().includes(verb)).length;
-        
-        const totalLength = fullProjectText.length;
+        const badgeElem = document.getElementById('current-contest-badge');
+        if(badgeElem) badgeElem.textContent = `Concurso: ${contestName.toUpperCase()}`;
+        window.currentDynamicContestName = contestName;
 
-        let totalScore = 0;
-        let totalWeight = 0;
+        // Animación circular del gráfico SVG (offset de 440)
+        const percentage = (grade - 1.0) / 6.0;
+        const dashOffset = 440 - (440 * percentage);
+        scoreCircleProgress.style.strokeDashoffset = dashOffset;
 
-        activeCriteria.forEach(crit => {
-            const lines = basesText.split('\n');
-            const matchingLine = lines.find(l => l.toLowerCase().includes(crit.name.toLowerCase())) || crit.name;
-            const critKeywords = getKeywordsFromText(matchingLine);
+        // Asignar colores de nota chilena
+        let gradeColor = 'var(--grade-bad)';
+        let statusClass = 'st-bad';
+
+        if (grade >= 6.0) {
+            gradeColor = 'var(--grade-perfect)';
+            statusClass = 'st-perfect';
+            exportCard.style.display = 'block';
+        } else if (grade >= 5.0) {
+            gradeColor = 'var(--grade-good)';
+            statusClass = 'st-good';
+            exportCard.style.display = 'none';
+        } else if (grade >= 4.0) {
+            gradeColor = 'var(--grade-avg)';
+            statusClass = 'st-avg';
+            exportCard.style.display = 'none';
+        } else {
+            gradeColor = 'var(--grade-bad)';
+            statusClass = 'st-bad';
+            exportCard.style.display = 'none';
+        }
+
+        // Aplicar estado extraído por IA
+        resultStatusBadge.textContent = adjudicableStatus.toUpperCase();
+        resultStatusBadge.className = `status-badge ${statusClass}`;
+
+        scoreCircleProgress.style.stroke = gradeColor;
+        resultGradeNumber.style.color = gradeColor;
+        optimizerScoreIndicator.style.color = gradeColor;
+
+        // RENDERIZAR RÚBRICA DESDE IA
+        const criteriaListContainer = document.querySelector('.criteria-list');
+        criteriaListContainer.innerHTML = ''; // Limpiar barras viejas
+
+        activeCriteria.forEach((crit, index) => {
+            const critPercentage = Math.round(((crit.score - 1.0) / 6.0) * 100);
             
-            let matchCount = 0;
-            critKeywords.forEach(kw => {
-                if (fullProjectText.toLowerCase().includes(kw)) matchCount++;
-            });
-            
-            const matchRatio = critKeywords.length > 0 ? matchCount / critKeywords.length : 0;
-            
-            // Nota base de 1.0 a 5.0 por coincidencia de palabras clave
-            let score = 1.0 + (matchRatio * 4.0);
-            
-            // Modificadores de rigor
-            if (hasMetrics) score += 0.8;
-            if (verbMatches >= 2) score += 0.7;
-            if (totalLength > 600) score += 0.5;
-            if (totalLength < 200) score -= 1.5;
-            
-            crit.score = Math.max(1.0, Math.min(7.0, parseFloat(score.toFixed(1))));
-            
-            totalScore += crit.score * crit.weight;
-            totalWeight += crit.weight;
+            let barColor = 'var(--grade-bad)';
+            if (crit.score >= 6.0) barColor = 'var(--grade-perfect)';
+            else if (crit.score >= 5.0) barColor = 'var(--grade-good)';
+            else if (crit.score >= 4.0) barColor = 'var(--grade-avg)';
+
+            const itemHtml = `
+                <div class="criterion-item" style="animation-delay: ${index * 0.15}s">
+                    <div class="criterion-header">
+                        <span class="criterion-name">${crit.name} (${crit.weight}%)</span>
+                        <span class="criterion-grade" style="color: ${barColor}">${crit.score.toFixed(1)}</span>
+                    </div>
+                    <div class="criterion-bar-wrapper">
+                        <div class="criterion-bar" style="width: 0%; background-color: ${barColor};" data-target-width="${critPercentage}%"></div>
+                    </div>
+                </div>
+            `;
+            criteriaListContainer.insertAdjacentHTML('beforeend', itemHtml);
         });
 
-        const finalGrade = totalWeight > 0 ? Math.max(1.0, Math.min(7.0, parseFloat((totalScore / totalWeight).toFixed(1)))) : 1.0;
+        // Retardo para animar anchos de barra dinámica
+        setTimeout(() => {
+            criteriaListContainer.querySelectorAll('.criterion-bar').forEach(bar => {
+                bar.style.width = bar.getAttribute('data-target-width');
+            });
+        }, 50);
 
-        window.activeCriteriaList = activeCriteria;
+        // Limpiar contenedor de síntesis y agregar diagnóstico de IA
+        synthesisContainer.innerHTML = '';
+        
+        const diagnosticBlock = document.createElement('div');
+        diagnosticBlock.className = 'synthesis-item';
+        diagnosticBlock.style.animationDelay = '0.3s';
+        diagnosticBlock.innerHTML = `
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" style="color: ${gradeColor}; margin-top:2px;">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <div>
+                <strong>Diagnóstico Ejecutivo de la Inteligencia Artificial</strong>
+                <p style="margin-top: 0.25rem;">${diagnosticText.replace(/\\n/g, '<br>')}</p>
+            </div>
+        `;
+        synthesisContainer.appendChild(diagnosticBlock);
 
-        updateUIWithScores(finalGrade, activeCriteria, matchedKeywords.slice(0, 10));
+        // Pre-cargar notas en el optimizador
+        document.getElementById('opt-crit-title').textContent = (activeCriteria[0]?.score || 1.0).toFixed(1);
+        document.getElementById('opt-crit-problem').textContent = (activeCriteria[1]?.score || 1.0).toFixed(1);
+        document.getElementById('opt-crit-solution').textContent = (activeCriteria[2]?.score || 1.0).toFixed(1);
+        document.getElementById('opt-crit-impact').textContent = (activeCriteria[3]?.score || 1.0).toFixed(1);
     };
 
     const updateUIWithScores = (grade, activeCriteria, matchedKeywords) => {
@@ -1052,43 +1137,67 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    const loadOptimizerSection = (sectionKey) => {
-        const dynOpt = getDynamicSuggestionsForSection(sectionKey);
+    // Llamada al Motor Cognitivo para Optimización Específica
+    const loadOptimizerSection = async (sectionKey) => {
+        const cName = window.currentDynamicContestName || 'Concurso';
+        optDiagTitle.textContent = `Analizando deficiencias en: ${getSectionDisplayName(sectionKey)} (${cName})...`;
+        optDiagItemsList.innerHTML = '<div style="color: var(--text-muted); font-style: italic;">Conectando con IA de redacción...</div>';
+        optBoxSuggested.innerHTML = '<div class="spinner" style="margin: 2rem auto; width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: var(--accent); animation: spin 1s ease-in-out infinite;"></div>';
+        btnApplySectionImprovement.disabled = true;
 
-        optDiagTitle.textContent = `Deficiencias de: ${getSectionDisplayName(sectionKey)} (${activeContestKey.toUpperCase()})`;
-        optDiagItemsList.innerHTML = '';
-        
         if (improvedSections[sectionKey]) {
             optDiagItemsList.innerHTML = `<div class="diagnostics-item" style="color: var(--accent); font-weight: 700;">✓ Sección optimizada con éxito para Nota 7.0.</div>`;
-            optBoxCurrent.textContent = dynOpt.suggested;
+            optBoxCurrent.textContent = getActiveDomText(sectionKey);
             optBoxSuggested.innerHTML = `<div style="padding: 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">El texto original ya fue reemplazado con la versión ganadora.</div>`;
-            btnApplySectionImprovement.disabled = true;
-        } else {
-            dynOpt.diagnostics.forEach(diag => {
+            optDiagTitle.textContent = `Estado de: ${getSectionDisplayName(sectionKey)}`;
+            return;
+        }
+
+        const basesText = customBasesText.value;
+        const currentText = getActiveDomText(sectionKey);
+        
+        try {
+            const result = await window.apiClient.optimizeSection(getSectionDisplayName(sectionKey), currentText, basesText);
+            
+            if (result.error) {
+                optDiagItemsList.innerHTML = `<div style="color: var(--grade-bad);">Error IA: ${result.error}</div>`;
+                optBoxSuggested.innerHTML = '';
+                return;
+            }
+
+            const cName = window.currentDynamicContestName || 'Concurso';
+            optDiagTitle.textContent = `Diagnóstico de IA para: ${getSectionDisplayName(sectionKey)} (${cName})`;
+            
+            // Renderizar deficiencias detectadas
+            optDiagItemsList.innerHTML = '';
+            const diagLines = result.criticalDeficiencies.split('\n');
+            diagLines.forEach(diag => {
+                if(diag.trim().length === 0) return;
                 const div = document.createElement('div');
-                if (diag.startsWith("✓")) {
-                    div.style.color = "var(--accent)";
-                    div.style.fontWeight = "700";
-                    div.className = 'diagnostics-item-ok';
-                    div.style.listStyleType = 'none';
-                } else {
-                    div.className = 'diagnostics-item';
-                }
-                div.textContent = diag;
+                div.className = 'diagnostics-item';
+                div.textContent = diag.replace(/^[-\*•]\s*/, '');
                 optDiagItemsList.appendChild(div);
             });
 
-            optBoxCurrent.textContent = getActiveDomText(sectionKey);
-            optBoxSuggested.innerHTML = dynOpt.diff;
+            // Mostrar el Diff
+            const diffHtml = computeLCSDiff(currentText, result.optimizedProposal);
+            optBoxCurrent.textContent = currentText;
+            optBoxSuggested.innerHTML = diffHtml;
+            
             btnApplySectionImprovement.disabled = false;
-        }
+            
+            btnApplySectionImprovement.onclick = () => {
+                applySectionOptimizationDirectly(sectionKey, result.optimizedProposal);
+            };
 
-        btnApplySectionImprovement.onclick = () => {
-            applySectionOptimizationDirectly(sectionKey, dynOpt.suggested);
-        };
+        } catch (err) {
+            optDiagItemsList.innerHTML = `<div style="color: var(--grade-bad);">Fallo en la red local con el servidor de IA.</div>`;
+            optBoxSuggested.innerHTML = '';
+            console.error(err);
+        }
     };
 
-    const applySectionOptimizationDirectly = (sectionKey, suggestedText) => {
+    const applySectionOptimizationDirectly = async (sectionKey, suggestedText) => {
         if (sectionKey === 'title') {
             projectTitleInput.value = suggestedText;
         } else if (sectionKey === 'problem') {
@@ -1097,8 +1206,10 @@ document.addEventListener('DOMContentLoaded', () => {
             projectSolutionInput.value = suggestedText;
         } else if (sectionKey === 'objectives') {
             const lines = suggestedText.split('\n');
-            projectObjGeneralInput.value = lines[0].replace('• ', '');
-            projectObjSpecificsInput.value = lines.slice(1).join('\n');
+            const objGen = lines.find(l => l.toLowerCase().includes('general') || !l.includes('•')) || lines[0];
+            const objSpec = lines.filter(l => l.includes('•') || l.includes('-')).join('\n') || lines.slice(1).join('\n');
+            projectObjGeneralInput.value = objGen.replace(/^[•\-]\s*/, '');
+            projectObjSpecificsInput.value = objSpec;
         } else if (sectionKey === 'impact') {
             projectImpactInput.value = suggestedText;
         }
@@ -1110,7 +1221,7 @@ document.addEventListener('DOMContentLoaded', () => {
             optGlowTarget.classList.remove('mutation-flash');
         }, 800);
 
-        evaluateProjectSilently();
+        await evaluateProjectWithAI();
         loadOptimizerSection(sectionKey);
     };
 
@@ -1144,38 +1255,49 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selectedOptSection === 'impact') projectImpactInput.value = "";
             }
 
-            evaluateProjectSilently();
+            evaluateProjectWithAI();
             loadOptimizerSection(selectedOptSection);
         }
     });
 
-    btnOptimizeAll.addEventListener('click', () => {
+    btnOptimizeAll.addEventListener('click', async () => {
         const sections = ['title', 'problem', 'solution', 'objectives', 'impact'];
+        
+        btnOptimizeAll.disabled = true;
+        btnOptimizeAll.textContent = "IA OPTIMIZANDO TODO (ESTO PUEDE TOMAR 1 MINUTO)...";
 
-        sections.forEach((sec, idx) => {
-            setTimeout(() => {
-                const dynOpt = getDynamicSuggestionsForSection(sec);
-                
-                if (sec === 'title') projectTitleInput.value = dynOpt.suggested;
-                if (sec === 'problem') projectProblemInput.value = dynOpt.suggested;
-                if (sec === 'solution') projectSolutionInput.value = dynOpt.suggested;
-                if (sec === 'objectives') {
-                    const lines = dynOpt.suggested.split('\n');
-                    projectObjGeneralInput.value = lines[0].replace('• ', '');
-                    projectObjSpecificsInput.value = lines.slice(1).join('\n');
+        for (let i = 0; i < sections.length; i++) {
+            const sec = sections[i];
+            const currentText = getActiveDomText(sec);
+            const basesText = customBasesText.value;
+            
+            try {
+                const result = await window.apiClient.optimizeSection(getSectionDisplayName(sec), currentText, basesText);
+                if (!result.error) {
+                    if (sec === 'title') projectTitleInput.value = result.optimizedProposal;
+                    if (sec === 'problem') projectProblemInput.value = result.optimizedProposal;
+                    if (sec === 'solution') projectSolutionInput.value = result.optimizedProposal;
+                    if (sec === 'objectives') {
+                        const lines = result.optimizedProposal.split('\n');
+                        const objGen = lines.find(l => l.toLowerCase().includes('general') || !l.includes('•')) || lines[0];
+                        const objSpec = lines.filter(l => l.includes('•') || l.includes('-')).join('\n') || lines.slice(1).join('\n');
+                        projectObjGeneralInput.value = objGen.replace(/^[•\-]\s*/, '');
+                        projectObjSpecificsInput.value = objSpec;
+                    }
+                    if (sec === 'impact') projectImpactInput.value = result.optimizedProposal;
+                    improvedSections[sec] = true;
                 }
-                if (sec === 'impact') projectImpactInput.value = dynOpt.suggested;
+            } catch (err) {
+                console.error("Error optimizando sección en bloque:", sec, err);
+            }
+        }
 
-                improvedSections[sec] = true;
-
-                if (idx === sections.length - 1) {
-                    evaluateProjectSilently();
-                    loadOptimizerSection(selectedOptSection);
-                    
-                    alert('¡Optimización Total Completada! El perfil del proyecto ha sido modificado exitosamente. Tu nota ha subido a 7.0 al cumplir con todos los criterios de las bases.');
-                }
-            }, idx * 250);
-        });
+        await evaluateProjectWithAI();
+        loadOptimizerSection(selectedOptSection);
+        
+        btnOptimizeAll.disabled = false;
+        btnOptimizeAll.textContent = "OPTIMIZAR TODOS LOS CAMPOS";
+        alert('¡Optimización Total Completada! El perfil del proyecto ha sido modificado exitosamente. Tu nota ha subido al máximo posible según los criterios de las bases.');
     });
 
 
